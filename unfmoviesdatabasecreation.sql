@@ -107,7 +107,8 @@ CREATE TABLE REVIEW(
 CREATE TABLE EMPLOYEE( 
 	EmployeeID Int auto_increment NOT NULL, 
 	FirstName VarChar(25) NOT NULL, 
-	LastName VarChar(25) NOT NULL, 
+	LastName VarChar(25) NOT NULL,
+	EncryptedPassword VarChar(50) NOT NULL,
 	ManagedBy Int NULL, 
 	CONSTRAINT EMPLOYEE_PK PRIMARY KEY(EmployeeID), 
 	CONSTRAINT EMPLOYEE_ManagedBy_FK FOREIGN KEY(ManagedBy) 
