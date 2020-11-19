@@ -9,7 +9,7 @@ public class administrator {
     administrator(String lastName, String firstName, String password) {
         //You will need to put the details of the MySQL database that you are using.
         try {
-            //First argument is the database url, second is the account, third is the password.
+            //First argument is the database url, second is the account, third is the password. The databaseConnection class returns the database connection.
             c = databaseConnection.getConnection();
             Statement s = c.createStatement();
             String query = "SELECT EmployeeID "
