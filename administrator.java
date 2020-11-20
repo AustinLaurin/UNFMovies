@@ -167,4 +167,22 @@ public class administrator {
             e.getStackTrace();
         }
     }
+    
+    public void locateTitle(String title) {
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT Title, SKU "
+                         + "FROM MOVIE AS M JOIN SKU_NUMBER AS SN "
+                            + "ON M.MovieID = SN.MovieID";
+            ResultSet rs = s.executeQuery(query); 
+            System.out.printf("%10s %10s\n", "Title", "SKU");
+            while(rs.next()) {
+                System.out.printf("%10s %10s\n", rs.getString("Title"), rs.getInt("SKU"));
+            }
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
