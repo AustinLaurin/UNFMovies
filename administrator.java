@@ -50,7 +50,7 @@ public class administrator {
                 float daysBetween = (difference / (1000*60*60*24));
                 
                 double rentalPrice;               
-                if(daysBetween >= 60)
+                if(daysBetween > 60)
                     rentalPrice = 3.00;
                 else
                     rentalPrice = 4.50;
@@ -181,6 +181,54 @@ public class administrator {
             }
         }
         catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public void revenueByTitleAndGenre() {
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT * FROM REVENUE_REPORT_TITLE_AND_GENRE";
+            ResultSet rs = s.executeQuery(query);
+            System.out.printf("%10s %10s %10s %10s\n", "Title", "Genre", "Total Payment", "Transaction Type");
+            while(rs.next()) {
+                System.out.printf("%10s %10s %10s %10s\n", rs.getString("Title"), rs.getString("Genre"), rs.getString("TotalPayment"), rs.getString("TransactionType"));
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public void revenuePeriodic() {
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT * FROM REVENUE_REPORT_PERIODIC";
+            ResultSet rs = s.executeQuery(query);
+            System.out.printf("%10s %10s %10s %10s\n", "Week", "Month", "Year", "Total Payment", "Transaction Type");
+            while(rs.next()) {
+                System.out.printf("%10s %10s %10s %10s\n", rs.getInt("Week"), rs.getInt("Month"), rs.getInt("Year"), rs.getString("TotalPayment"), rs.getString("TransactionType"));
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public void checkUserBalance() {
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT * FROM USER_BALANCE_VIEW";
+            ResultSet rs = s.executeQuery(query);
+            System.out.printf("%10s %10s %10s %10s\n", "UserID", "Last Name", "First Name", "Current Bill");
+            while(rs.next()) {
+                System.out.printf("%10s %10s %10s %10s\n", rs.getString("UserID"), rs.getString("LastName"), rs.getString("FirstName"), rs.getString("CurrentBill"));
+            }
+        }
+        catch(Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
