@@ -1,3 +1,5 @@
+package unfmovies;
+
 import java.util.*;
 import java.sql.*;
 import java.text.*;
@@ -9,7 +11,7 @@ public class administrator {
     administrator(String lastName, String firstName, String password) {
         //You will need to put the details of the MySQL database that you are using.
         try {
-            //First argument is the database url, second is the account, third is the password. The databaseConnection class returns the database connection.
+            //First argument is the database url, second is the account, third is the password.
             c = databaseConnection.getConnection();
             Statement s = c.createStatement();
             String query = "SELECT EmployeeID "
@@ -30,7 +32,7 @@ public class administrator {
         
     }
     
-    public void addMovieToDatabase(String title, String genre, String description, String releaseDate, int isDigital, int numberOfCopies, double purchasePrice, String ageRating, String directorLastName, String directorFirstName, Integer sequelTo, String productionCompany) 
+    public void addMovieToDatabase(String title, String genre, String description, String releaseDate, int isDigital, double purchasePrice, String ageRating, String directorLastName, String directorFirstName, Integer sequelTo, String productionCompany) 
     {
         try {
             Statement s = c.createStatement();
@@ -64,9 +66,9 @@ public class administrator {
                 }
                 
                 if(productionCompany == null)
-                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + genre + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + "," + numberOfCopies + "," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + productionCompany + ")";
+                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + genre + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + productionCompany + ")";
                 else
-                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + genre + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + "," + numberOfCopies + "," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + ",'" + productionCompany + "')";
+                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + genre + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + ",'" + productionCompany + "')";
                 
                 s.executeUpdate(query);
             }
@@ -84,6 +86,81 @@ public class administrator {
                          + "FROM MOVIE "
                          + "WHERE Title = '" + title + "'";
             s.executeUpdate(query);
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.getStackTrace();
+        }
+    }
+    
+    public void increaseInventory(String title) {
+        try {
+            Statement s = c.createStatement();
+            
+            //First, let's check if the movie is available in digital format. If so, we do not have physical copies of it.
+            //We will also be obtaining the MovieID of the movie and the number of copies.
+            //We are going to assume that administrators will only increase and decrease inventories of movies known to be in the database.
+            Boolean isDigital = true;
+            int MovieID = 0;
+            int numberOfCopies = 0;
+            String query = "SELECT MovieID, isDigital, numberOfCopies "
+                         + "FROM MOVIE "
+                         + "WHERE Title = '" + title + "'";
+            ResultSet rs = s.executeQuery(query);
+            if(rs.next()) {
+                isDigital = rs.getBoolean("isDigital");
+                MovieID = rs.getInt("MovieID");
+                numberOfCopies = rs.getInt("NumberOfCopies");
+            }
+            
+            //Now we will increase the number of movies by one and create a new entry in the SKU table as long as the format isn't digital.
+            if(!isDigital) {
+                query = "UPDATE MOVIE "
+                      + "SET NumberOfCopies = " + ++numberOfCopies + " "
+                      + "WHERE Title = '" + title + "'";
+                s.executeUpdate(query);
+                query = "INSERT INTO SKU_NUMBER VALUES(NULL," + MovieID + ")";
+                s.executeUpdate(query);
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.getStackTrace();
+        }
+    }
+    
+    public void decreaseInventory(String title) {
+        try {
+            Statement s = c.createStatement();
+            
+            //First, let's check if the movie is available in digital format. If so, we do not have physical copies of it.
+            //We will also be obtaining the MovieID of the movie and the number of copies.
+            //We are going to assume that administrators will only increase and decrease inventories of movies known to be in the database.
+            Boolean isDigital = true;
+            int MovieID = 0;
+            int numberOfCopies = 0;
+            String query = "SELECT MovieID, isDigital, numberOfCopies "
+                         + "FROM MOVIE "
+                         + "WHERE Title = '" + title + "'";
+            ResultSet rs = s.executeQuery(query);
+            if(rs.next()) {
+                isDigital = rs.getBoolean("isDigital");
+                MovieID = rs.getInt("MovieID");
+                numberOfCopies = rs.getInt("NumberOfCopies");
+            }
+            
+            //Now we will increase the number of movies by one and create a new entry in the SKU table as long as the format isn't digital.
+            if(!isDigital && numberOfCopies != 0) {
+                query = "DELETE "
+                      + "FROM SKU_NUMBER "
+                      + "WHERE MovieID = " + MovieID + " "
+                      + "LIMIT 1";
+                s.executeUpdate(query);
+                query = "UPDATE MOVIE "
+                      + "SET NumberOfCopies = " + --numberOfCopies + " "
+                      + "WHERE Title = '" + title + "'";
+                s.executeUpdate(query);
+            }
         }
         catch(Exception e) {
             System.out.println(e.getMessage());
