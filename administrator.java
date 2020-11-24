@@ -22,8 +22,10 @@ public class administrator {
             ResultSet rs = s.executeQuery(query);
             if(rs.next()) 
                 EmployeeID = rs.getInt("EmployeeID");
-            else
+            else {
                 System.out.println("Your account could not be authenticated.");
+                c = null;
+            }
         }
         catch(Exception e) {
             System.out.println(e.getMessage());
@@ -66,9 +68,9 @@ public class administrator {
                 }
                 
                 if(productionCompany == null)
-                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + genre + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + productionCompany + ")";
+                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + productionCompany + ")";
                 else
-                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + genre + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + ",'" + productionCompany + "')";
+                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + ",'" + productionCompany + "')";
                 
                 s.executeUpdate(query);
             }
@@ -232,5 +234,25 @@ public class administrator {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+    }
+    
+    private int getGenreIDFromGenre(String Genre) {
+        int GenreID = 0;
+        try{
+            Statement s = c.createStatement();
+            String query = "SELECT * "
+                         + "FROM Genre"
+                         + "WHERE Genre = '" + Genre + "'";
+            ResultSet rs = s.executeQuery(query);
+            //There should only be one result. I'm just adding this to keep to form, but rs.next() should really only need to be called once.
+            while(rs.next()) {
+                GenreID = rs.getInt("GenreID");
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return GenreID;
     }
 }
