@@ -1,9 +1,11 @@
+
 CREATE TABLE USER( 
 	UserID Int auto_increment NOT NULL,  
 	FirstName VarChar(25) NOT NULL, 
 	LastName VarChar(25) NOT NULL,  
 	Age Int NOT NULL, 
 	CurrentBill Numeric(9,2) NOT NULL DEFAULT '0.00',  
+    LateFees Numeric(9,2) NOT NULL DEFAULT '0.00',  
 	EncryptedPassword VarChar(50) NOT NULL,  
 	OutstandingBalance Boolean NOT NULL DEFAULT '0', 
 	ReferredBy Integer NULL, 
@@ -59,7 +61,7 @@ CREATE TABLE PRODUCTION_COMPANY(
 CREATE TABLE MOVIE( 
 	MovieID Int auto_increment NOT NULL, 
 	Title VarChar(168) NOT NULL, 
-	Genre VarChar(20) NOT NULL,  
+	GenreID Int NOT NULL,  
 	Description VarChar(500) NOT NULL, 
 	MovieScore Numeric(4,2) NULL, 
 	ReleaseDate Date NOT NULL, 
@@ -83,8 +85,17 @@ CREATE TABLE MOVIE(
 	CONSTRAINT MOVIE_Production_Company_FK FOREIGN KEY(ProductionCompanyID) 
 		REFERENCES PRODUCTION_COMPANY(ProductionCompanyID) 
 			ON UPDATE NO ACTION 
-			ON DELETE NO ACTION 
+			ON DELETE NO ACTION, 
+	CONSTRAINT MOVIE_GENRE_FK FOREIGN KEY(GenreID)
+		REFERENCES GENRE(GenreID)
+			ON UPDATE NO ACTION
+            ON DELETE NO ACTION
 ); 
+
+CREATE TABLE GENRE(
+	GenreID Int auto_increment NOT NULL,
+    Genre VarChar(20) NOT NULL
+);
 
 CREATE TABLE SKU_NUMBER(
 	SKU Int auto_increment NOT NULL,
@@ -151,7 +162,7 @@ CREATE TABLE TRANSACTION(
 CREATE TABLE RENTAL( 
 	TransactionID Int NOT NULL, 
 	DueDate Date NOT NULL, 
-	IsLate Boolean NOT NULL DEFAULT '0',  
+	IsPaid Boolean NOT NULL DEFAULT '0',  
 	CONSTRAINT TRANSACTION_PK PRIMARY KEY(TransactionID), 
 	CONSTRAINT RENTAL_TRANSACTION_FK FOREIGN KEY(TransactionID) 
 		REFERENCES TRANSACTION(TransactionID) 
@@ -235,6 +246,3 @@ CREATE VIEW REVENUE_REPORT_PERIODIC AS(
 );
 
 CREATE VIEW USER_BALANCE_VIEW AS(
-	SELECT UserID, LastName, FirstName, CurrentBill
-    FROM USER
-);
