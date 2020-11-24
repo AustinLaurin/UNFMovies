@@ -5,7 +5,7 @@ CREATE TABLE USER(
 	LastName VarChar(25) NOT NULL,  
 	Age Int NOT NULL, 
 	CurrentBill Numeric(9,2) NOT NULL DEFAULT '0.00',  
-    LateFees Numeric(9,2) NOT NULL DEFAULT '0.00',  
+    	LateFees Numeric(9,2) NOT NULL DEFAULT '0.00',  
 	EncryptedPassword VarChar(50) NOT NULL,  
 	OutstandingBalance Boolean NOT NULL DEFAULT '0', 
 	ReferredBy Integer NULL, 
