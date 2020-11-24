@@ -65,7 +65,7 @@ CREATE TABLE MOVIE(
 	Description VarChar(500) NOT NULL, 
 	MovieScore Numeric(4,2) NULL, 
 	ReleaseDate Date NOT NULL, 
-    isDigital Boolean NOT NULL,
+    	isDigital Boolean NOT NULL,
 	NumberOfCopies Int NOT NULL DEFAULT '0', 
 	RentalPrice Numeric(4,2) NOT NULL, 
 	PurchasePrice Numeric(4,2) NOT NULL, 
@@ -89,22 +89,22 @@ CREATE TABLE MOVIE(
 	CONSTRAINT MOVIE_GENRE_FK FOREIGN KEY(GenreID)
 		REFERENCES GENRE(GenreID)
 			ON UPDATE NO ACTION
-            ON DELETE NO ACTION
+            		ON DELETE NO ACTION
 ); 
 
 CREATE TABLE GENRE(
 	GenreID Int auto_increment NOT NULL,
-    Genre VarChar(20) NOT NULL
+    	Genre VarChar(20) NOT NULL
 );
 
 CREATE TABLE SKU_NUMBER(
 	SKU Int auto_increment NOT NULL,
-    MovieID Int NOT NULL,
-    CONSTRAINT SKU_NUMBER_PK PRIMARY KEY(SKU),
-    CONSTRAINT SKU_NUMBER_MOVIE_FK FOREIGN KEY(MovieID)
+    	MovieID Int NOT NULL,
+    	CONSTRAINT SKU_NUMBER_PK PRIMARY KEY(SKU),
+    	CONSTRAINT SKU_NUMBER_MOVIE_FK FOREIGN KEY(MovieID)
 		REFERENCES MOVIE(MovieID)
 			ON UPDATE NO ACTION
-            ON DELETE CASCADE
+            		ON DELETE CASCADE
 );
 
 CREATE TABLE REVIEW( 
@@ -130,7 +130,7 @@ CREATE TABLE EMPLOYEE(
 	EmployeeID Int auto_increment NOT NULL, 
 	FirstName VarChar(25) NOT NULL, 
 	LastName VarChar(25) NOT NULL, 
-    EncryptedPassword VarChar(50) NOT NULL,
+    	EncryptedPassword VarChar(50) NOT NULL,
 	ManagedBy Int NULL, 
 	CONSTRAINT EMPLOYEE_PK PRIMARY KEY(EmployeeID), 
 	CONSTRAINT EMPLOYEE_ManagedBy_FK FOREIGN KEY(ManagedBy) 
@@ -233,7 +233,7 @@ CREATE TABLE MOVIE_MOVIE(
 
 CREATE VIEW REVENUE_REPORT_TITLE_AND_GENRE AS(
 	SELECT M.Title AS "Title", M.Genre AS "Genre", T.TotalPayment AS "TotalPayment", T.TransactionType AS "TransactionType"
-    FROM MOVIE AS M JOIN MOVIE_TRANSACTION AS MT
+    	FROM MOVIE AS M JOIN MOVIE_TRANSACTION AS MT
 		ON M.MovieID = MT.MovieID JOIN TRANSACTION AS T 
 			ON T.TransactionID = MT.TransactionID
 	GROUP BY M.Title, M.Genre
@@ -241,8 +241,12 @@ CREATE VIEW REVENUE_REPORT_TITLE_AND_GENRE AS(
 
 CREATE VIEW REVENUE_REPORT_PERIODIC AS(
 	SELECT WEEK(T.TransactionDate) AS "Week", MONTH(T.TransactionDate) AS "Month", YEAR(T.TransactionDate) AS "Year", SUM(T.TotalPayment) AS "TotalPayment", T.TransactionType AS "TransactionType"
-    FROM TRANSACTION AS T
-    GROUP BY WEEK(T.TransactionDate), MONTH(T.TransactionDate), YEAR(T.TransactionDate)
+    	FROM TRANSACTION AS T
+    	GROUP BY WEEK(T.TransactionDate), MONTH(T.TransactionDate), YEAR(T.TransactionDate)
 );
 
 CREATE VIEW USER_BALANCE_VIEW AS(
+	SELECT UserID, LastName, FirstName, CurrentBill
+    	FROM USER
+);
+
