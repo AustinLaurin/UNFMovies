@@ -34,8 +34,7 @@ public class administrator {
         
     }
     
-    public void addMovieToDatabase(String title, String genre, String description, String releaseDate, int isDigital, double purchasePrice, String ageRating, String directorLastName, String directorFirstName, Integer sequelTo, String productionCompany) 
-    {
+    public void addMovieToDatabase(String title, String genre, String description, String releaseDate, int isDigital, double oldReleaseRentalRate, double newReleaseRentalRate, int oldReleaseRentalPeriod, int newReleaseRentalPeriod, double lateFeeRate, double purchasePrice, String ageRating, String directorLastName, String directorFirstName, Integer sequelTo, String productionCompany) {
         try {
             Statement s = c.createStatement();
             String query = "SELECT DirectorID "
@@ -45,17 +44,22 @@ public class administrator {
             ResultSet rs = s.executeQuery(query);
             if(rs.next()) {
                 int directorID = rs.getInt("DirectorID");
-                SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-dd-MM");
+                SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
                 java.util.Date initialDate = myFormat.parse(releaseDate);
                 java.util.Date currentDate = new java.util.Date(System.currentTimeMillis());
                 long difference = currentDate.getTime() - initialDate.getTime();
                 float daysBetween = (difference / (1000*60*60*24));
                 
-                double rentalPrice;               
-                if(daysBetween > 60)
-                    rentalPrice = 3.00;
-                else
-                    rentalPrice = 4.50;
+                double rentalPrice;
+                int rentalPeriod;
+                if(daysBetween > 60) {
+                    rentalPrice = oldReleaseRentalRate;
+                    rentalPeriod = oldReleaseRentalPeriod;
+                }
+                else {
+                    rentalPrice = newReleaseRentalRate;
+                    rentalPeriod = newReleaseRentalPeriod;
+                }
                 
                 if(productionCompany != null) {
                     Integer ProductionID = null;
@@ -68,9 +72,9 @@ public class administrator {
                 }
                 
                 if(productionCompany == null)
-                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + productionCompany + ")";
+                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + rentalPeriod + "," + lateFeeRate + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + productionCompany + ")";
                 else
-                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + ",'" + productionCompany + "')";
+                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + rentalPeriod + "," + lateFeeRate + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + ",'" + productionCompany + "')";
                 
                 s.executeUpdate(query);
             }
@@ -131,7 +135,7 @@ public class administrator {
         }
     }
     
-    public void decreaseInventory(String title) {
+    public void decreaseInventory(String title, int SKU) {
         try {
             Statement s = c.createStatement();
             
@@ -156,7 +160,7 @@ public class administrator {
                 query = "DELETE "
                       + "FROM SKU_NUMBER "
                       + "WHERE MovieID = " + MovieID + " "
-                      + "LIMIT 1";
+                      + "AND SKU = " + SKU;
                 s.executeUpdate(query);
                 query = "UPDATE MOVIE "
                       + "SET NumberOfCopies = " + --numberOfCopies + " "
@@ -193,9 +197,9 @@ public class administrator {
             Statement s = c.createStatement();
             String query = "SELECT * FROM REVENUE_REPORT_TITLE_AND_GENRE";
             ResultSet rs = s.executeQuery(query);
-            System.out.printf("%10s %10s %10s %10s\n", "Title", "Genre", "Total Payment", "Transaction Type");
+            System.out.printf("%20s %20s %20s %20s\n", "Title", "Genre", "Total Payment", "Transaction Type");
             while(rs.next()) {
-                System.out.printf("%10s %10s %10s %10s\n", rs.getString("Title"), rs.getString("Genre"), rs.getString("TotalPayment"), rs.getString("TransactionType"));
+                System.out.printf("%20s %20s %20s %20s\n", rs.getString("Title"), rs.getString("Genre"), rs.getString("TotalPayment"), rs.getString("TransactionType"));
             }
         }
         catch(Exception e) {
@@ -209,9 +213,9 @@ public class administrator {
             Statement s = c.createStatement();
             String query = "SELECT * FROM REVENUE_REPORT_PERIODIC";
             ResultSet rs = s.executeQuery(query);
-            System.out.printf("%10s %10s %10s %10s\n", "Week", "Month", "Year", "Total Payment", "Transaction Type");
+            System.out.printf("%20s %20s %20s %20s %20s\n", "Week", "Month", "Year", "Total Payment", "Transaction Type");
             while(rs.next()) {
-                System.out.printf("%10s %10s %10s %10s\n", rs.getInt("Week"), rs.getInt("Month"), rs.getInt("Year"), rs.getString("TotalPayment"), rs.getString("TransactionType"));
+                System.out.printf("%20s %20s %20s %20s %20s\n", rs.getInt("Week"), rs.getInt("Month"), rs.getInt("Year"), rs.getString("TotalPayment"), rs.getString("TransactionType"));
             }
         }
         catch(Exception e) {
@@ -236,12 +240,78 @@ public class administrator {
         }
     }
     
+    public void updateRentalRate(double oldReleaseRentalRate, double newReleaseRentalRate) {
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT * "
+                         + "FROM MOVIE";
+            ResultSet rs = s.executeQuery(query);
+            
+            while(rs.next()) {
+                SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date initialDate = myFormat.parse(rs.getString("ReleaseDate"));
+                java.util.Date currentDate = new java.util.Date(System.currentTimeMillis());
+                long difference = currentDate.getTime() - initialDate.getTime();
+                float daysBetween = (difference / (1000*60*60*24));
+
+                double rentalPrice;               
+                if(daysBetween > 60)
+                    rentalPrice = oldReleaseRentalRate;
+                else
+                    rentalPrice = newReleaseRentalRate;
+                
+                s = c.createStatement();
+                query = "UPDATE MOVIE "
+                      + "SET RentalPrice = " + rentalPrice + " "
+                      + "WHERE MovieID = " + rs.getString("MovieID");
+                s.executeUpdate(query);
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public void updateLateFee(double lateFeeAmount, int maximumOldRentalPeriod, int maximumNewRentalPeriod) {
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT * "
+                         + "FROM MOVIE";
+            ResultSet rs = s.executeQuery(query);
+            
+            while(rs.next()) {
+                SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date initialDate = myFormat.parse(rs.getString("ReleaseDate"));
+                java.util.Date currentDate = new java.util.Date(System.currentTimeMillis());
+                long difference = currentDate.getTime() - initialDate.getTime();
+                float daysBetween = (difference / (1000*60*60*24));
+
+                int rentalPeriod;               
+                if(daysBetween > 60)
+                    rentalPeriod = maximumOldRentalPeriod;
+                else
+                    rentalPeriod = maximumNewRentalPeriod;
+                
+                s = c.createStatement();
+                query = "UPDATE MOVIE "
+                      + "SET MaximumRentalPeriodDays = " + rentalPeriod + ", LateFeeRate = " + lateFeeAmount + " "
+                      + "WHERE MovieID = " + rs.getString("MovieID");
+                s.executeUpdate(query);
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
     private int getGenreIDFromGenre(String Genre) {
         int GenreID = 0;
         try{
             Statement s = c.createStatement();
             String query = "SELECT * "
-                         + "FROM Genre"
+                         + "FROM GENRE "
                          + "WHERE Genre = '" + Genre + "'";
             ResultSet rs = s.executeQuery(query);
             //There should only be one result. I'm just adding this to keep to form, but rs.next() should really only need to be called once.
