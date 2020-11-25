@@ -58,6 +58,12 @@ CREATE TABLE PRODUCTION_COMPANY(
 	CONSTRAINT PRODUCTION_COMPANY_PK PRIMARY KEY(ProductionCompanyID) 
 ); 
 
+CREATE TABLE GENRE(
+	GenreID Int auto_increment NOT NULL,
+    	Genre VarChar(20) NOT NULL,
+    	CONSTRAINT GENRE_PK PRIMARY KEY(GenreID)
+);
+
 CREATE TABLE MOVIE( 
 	MovieID Int auto_increment NOT NULL, 
 	Title VarChar(168) NOT NULL, 
@@ -68,6 +74,8 @@ CREATE TABLE MOVIE(
     	isDigital Boolean NOT NULL,
 	NumberOfCopies Int NOT NULL DEFAULT '0', 
 	RentalPrice Numeric(4,2) NOT NULL, 
+    	MaximumRentalPeriodDays Int NOT NULL,
+    	LateFeeRate Numeric(4,2) NOT NULL, 
 	PurchasePrice Numeric(4,2) NOT NULL, 
 	AgeRating VarChar(5) NOT NULL, 
 	DirectorID Int NOT NULL, 
@@ -92,11 +100,6 @@ CREATE TABLE MOVIE(
             		ON DELETE NO ACTION
 ); 
 
-CREATE TABLE GENRE(
-	GenreID Int auto_increment NOT NULL,
-    	Genre VarChar(20) NOT NULL
-);
-
 CREATE TABLE SKU_NUMBER(
 	SKU Int auto_increment NOT NULL,
     	MovieID Int NOT NULL,
@@ -104,7 +107,7 @@ CREATE TABLE SKU_NUMBER(
     	CONSTRAINT SKU_NUMBER_MOVIE_FK FOREIGN KEY(MovieID)
 		REFERENCES MOVIE(MovieID)
 			ON UPDATE NO ACTION
-            		ON DELETE CASCADE
+           		ON DELETE CASCADE
 );
 
 CREATE TABLE REVIEW( 
@@ -141,12 +144,13 @@ CREATE TABLE EMPLOYEE(
 
 CREATE TABLE TRANSACTION( 
 	TransactionID Int auto_increment NOT NULL, 
+    	ItemNumber Int NOT NULL,
 	TransactionDate Date NOT NULL, 
 	TransactionType VarChar(8) NOT NULL, 
 	TotalPayment Numeric(9,2) NOT NULL, 
-	EmployeeID Int NOT NULL, 
+	EmployeeID Int NULL, 
 	UserID Int NOT NULL, 
-	CONSTRAINT TRANSACTION_PK PRIMARY KEY(TransactionID), 
+	CONSTRAINT TRANSACTION_PK PRIMARY KEY(TransactionID, ItemNumber), 
 	CONSTRAINT TRANSACTION_EMPLOYEE_FK FOREIGN KEY(EmployeeID) 
 		REFERENCES EMPLOYEE(EmployeeID) 
 			ON UPDATE NO ACTION 
@@ -160,22 +164,27 @@ CREATE TABLE TRANSACTION(
 ); 
 
 CREATE TABLE RENTAL( 
-	TransactionID Int NOT NULL, 
-	DueDate Date NOT NULL, 
+	TransactionID Int NOT NULL,
+    	ItemNumber Int NOT NULL,
+	DueDate Date NOT NULL,
+    	DateReturned Date NULL,
 	IsPaid Boolean NOT NULL DEFAULT '0',  
-	CONSTRAINT TRANSACTION_PK PRIMARY KEY(TransactionID), 
-	CONSTRAINT RENTAL_TRANSACTION_FK FOREIGN KEY(TransactionID) 
-		REFERENCES TRANSACTION(TransactionID) 
+	CONSTRAINT TRANSACTION_PK PRIMARY KEY(TransactionID, ItemNumber), 
+	CONSTRAINT RENTAL_TRANSACTION_FK FOREIGN KEY(TransactionID, ItemNumber) 
+		REFERENCES TRANSACTION(TransactionID, ItemNumber) 
 			ON UPDATE NO ACTION 
 			ON DELETE NO ACTION 
 ); 
 
 CREATE TABLE PURCHASE( 
 	TransactionID Int NOT NULL, 
+    	ItemNumber Int NOT NULL,
 	PurchaseDate Date NOT NULL, 
-	CONSTRAINT TRANSACTION_PK PRIMARY KEY(TransactionID), 
-	CONSTRAINT PURCHASE_TRANSACTION_FK FOREIGN KEY(TransactionID) 
-		REFERENCES TRANSACTION(TransactionID) 
+    	HasWatched Boolean NOT NULL DEFAULT 0,
+    	HasDownloaded Boolean NOT NULL DEFAULT 0,
+	CONSTRAINT TRANSACTION_PK PRIMARY KEY(TransactionID, ItemNumber), 
+	CONSTRAINT PURCHASE_TRANSACTION_FK FOREIGN KEY(TransactionID, ItemNumber) 
+		REFERENCES TRANSACTION(TransactionID, ItemNumber) 
 			ON UPDATE NO ACTION 
 			ON DELETE NO ACTION 
 ); 
@@ -232,11 +241,12 @@ CREATE TABLE MOVIE_MOVIE(
 ); 
 
 CREATE VIEW REVENUE_REPORT_TITLE_AND_GENRE AS(
-	SELECT M.Title AS "Title", M.Genre AS "Genre", T.TotalPayment AS "TotalPayment", T.TransactionType AS "TransactionType"
+	SELECT M.Title AS "Title", G.Genre AS "Genre", T.TotalPayment AS "TotalPayment", T.TransactionType AS "TransactionType"
     	FROM MOVIE AS M JOIN MOVIE_TRANSACTION AS MT
 		ON M.MovieID = MT.MovieID JOIN TRANSACTION AS T 
-			ON T.TransactionID = MT.TransactionID
-	GROUP BY M.Title, M.Genre
+			ON T.TransactionID = MT.TransactionID JOIN GENRE AS G
+				ON G.GenreID = M.GenreID
+	GROUP BY M.Title, G.Genre
 );
 
 CREATE VIEW REVENUE_REPORT_PERIODIC AS(
@@ -249,4 +259,7 @@ CREATE VIEW USER_BALANCE_VIEW AS(
 	SELECT UserID, LastName, FirstName, CurrentBill
     	FROM USER
 );
+
+
+
 
