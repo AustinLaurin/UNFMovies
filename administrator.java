@@ -8,7 +8,7 @@ public class administrator {
     private int EmployeeID;
     private Connection c;
     
-    public administrator(String lastName, String firstName, String password) {
+    administrator(String lastName, String firstName, String password) {
         //You will need to put the details of the MySQL database that you are using.
         try {
             //First argument is the database url, second is the account, third is the password.
