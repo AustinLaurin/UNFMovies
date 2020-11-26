@@ -22,7 +22,7 @@ public class UNFMovieStore {
                     
                     int i = 0;
                     while(i < 1){
-                    System.out.print(fname+", please select an action. Enter 'locate title', 'update inventory', 'manage customer balance', or 'generate reports': ");
+                    System.out.print(fname+", please select an action. Enter 'locate title', 'update inventory', 'manage customer balance', 'generate reports', or 'logout': ");
                     input = new Scanner (System.in);
                     switch (input.nextLine()){
                         case "locate title":{
@@ -211,7 +211,11 @@ public class UNFMovieStore {
                             i = 0;
                             break;
                         }
-                    
+                        case "logout":{
+                            i = 1;
+                            System.out.print("Log out successful.");
+                            break;
+                        }
                     }
                 }
                 break;
@@ -229,7 +233,7 @@ public class UNFMovieStore {
                     
                     int i = 0;
                     while(i < 1){
-                    System.out.print(fname+", please select an action. Enter enter 'search movies', 'checkout', 'return', 'manage balance',or 'write review': ");
+                    System.out.print(fname+", please select an action. Enter enter 'search movies', 'checkout', 'return', 'manage balance', 'write review', or 'logout': ");
                     input = new Scanner (System.in);
                     switch (input.nextLine()){
                         case "search movies":{
@@ -310,25 +314,27 @@ public class UNFMovieStore {
                         }
                         case "write review":{
                         //call writeReview
-                        System.out.print("Enter the title of the movie you would like to review: ");
-                        String title = input.nextLine();
-                        System.out.print("Enter the content of the review: ");
-                        String text = input.nextLine();
-                        System.out.print("Enter the score of the movie: ");
-                        int score = input.nextInt();
-                        c.writeReview(text, score, title);
+                            System.out.print("Enter the title of the movie you would like to review: ");
+                            String title = input.nextLine();
+                            System.out.print("Enter the content of the review: ");
+                            String text = input.nextLine();
+                            System.out.print("Enter the score of the movie: ");
+                            int score = input.nextInt();
+                            c.writeReview(text, score, title);
                         i = 0;
                         break;
                         }
+                        case "logout":{
+                            i = 1;
+                            System.out.print("Log out successful.");
+                            break;
+                        }
                     }
-                }   
+                }
                 break;
                 }
             default:
                 System.out.println("Please try again and enter either 'employee' or 'customer'");
                 break;
         }
-    }
-    
-}
 
