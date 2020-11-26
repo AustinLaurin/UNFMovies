@@ -256,7 +256,7 @@ CREATE VIEW REVENUE_REPORT_PERIODIC AS(
 );
 
 CREATE VIEW USER_BALANCE_VIEW AS(
-	SELECT UserID, LastName, FirstName, CurrentBill
+	SELECT UserID, LastName, FirstName, CurrentBill, LateFees
     	FROM USER
 );
 
