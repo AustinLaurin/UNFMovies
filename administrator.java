@@ -8,7 +8,7 @@ public class administrator {
     private int EmployeeID;
     private Connection c;
     
-    administrator(String lastName, String firstName, String password) {
+    public administrator(String lastName, String firstName, String password) {
         //You will need to put the details of the MySQL database that you are using.
         try {
             //First argument is the database url, second is the account, third is the password.
@@ -92,6 +92,8 @@ public class administrator {
                          + "FROM MOVIE "
                          + "WHERE Title = '" + title + "'";
             s.executeUpdate(query);
+            
+            
         }
         catch(Exception e) {
             System.out.println(e.getMessage());
@@ -179,7 +181,8 @@ public class administrator {
             Statement s = c.createStatement();
             String query = "SELECT Title, SKU "
                          + "FROM MOVIE AS M JOIN SKU_NUMBER AS SN "
-                            + "ON M.MovieID = SN.MovieID";
+                            + "ON M.MovieID = SN.MovieID "
+                         + "WHERE Title = '" + title + "'";
             ResultSet rs = s.executeQuery(query); 
             System.out.printf("%10s %10s\n", "Title", "SKU");
             while(rs.next()) {
@@ -229,9 +232,9 @@ public class administrator {
             Statement s = c.createStatement();
             String query = "SELECT * FROM USER_BALANCE_VIEW";
             ResultSet rs = s.executeQuery(query);
-            System.out.printf("%10s %10s %10s %10s\n", "UserID", "Last Name", "First Name", "Current Bill");
+            System.out.printf("%10s %10s %10s %10s\n", "UserID", "Last Name", "First Name", "Current Bill", "Late Fees");
             while(rs.next()) {
-                System.out.printf("%10s %10s %10s %10s\n", rs.getString("UserID"), rs.getString("LastName"), rs.getString("FirstName"), rs.getString("CurrentBill"));
+                System.out.printf("%10s %10s %10s %10s\n", rs.getString("UserID"), rs.getString("LastName"), rs.getString("FirstName"), rs.getString("CurrentBill"), rs.getString("LateFees"));
             }
         }
         catch(Exception e) {
