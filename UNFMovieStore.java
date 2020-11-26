@@ -1,23 +1,20 @@
-
 package unfmoviestore;
 import java.util.Scanner;
 
 public class UNFMovieStore {
-
-
     public static void main(String[] args) {
         // TODO code application logic here
         Scanner input = new Scanner (System.in);
         System.out.print("Please enter your role, 'employee' or 'customer': ");
-        switch (input.next()) {
+        switch (input.nextLine()) {
             case "employee":
                 {
                     System.out.print("Enter your last name: ");
-                    String lname = input.next();
+                    String lname = input.nextLine();
                     System.out.print("Enter your first name: ");
-                    String fname = input.next();
+                    String fname = input.nextLine();
                     System.out.print("Enter your password: ");
-                    String password = input.next();
+                    String password = input.nextLine();
                     administrator a = new administrator(lname, fname, password);
                     
                     int i = 0;
@@ -52,7 +49,7 @@ public class UNFMovieStore {
                                     System.out.print("Is it Digital?(enter 'yes' or 'no') ");
                                     int digital = -1;
                                     input = new Scanner (System.in);
-                                    switch (input.next()){
+                                    switch (input.nextLine()){
                                         case "yes":{
                                             digital = 1;
                                             break;
@@ -68,7 +65,7 @@ public class UNFMovieStore {
                                     int oldPeriod = 0;
                                     int newPeriod = 0;
                                     input = new Scanner (System.in);
-                                    switch (input.next()){
+                                    switch (input.nextLine()){
                                         case "new":{
                                             System.out.print("Enter the rental rate for the movie: ");
                                             newRate = input.nextDouble();
@@ -88,20 +85,21 @@ public class UNFMovieStore {
                                     double lateFeeRate = input.nextDouble();
                                     System.out.print("Purchase Price: ");
                                     double price = input.nextDouble();
+                                    input = new Scanner(System.in);
                                     System.out.print("Age Rating: ");
-                                    String ageRate = input.next();
+                                    String ageRate = input.nextLine();
                                     System.out.print("Last Name of the Director: ");
-                                    String directorLast = input.next();
+                                    String directorLast = input.nextLine();
                                     System.out.print("First Name of the Director: ");
-                                    String directorFirst = input.next();
+                                    String directorFirst = input.nextLine();
                                     System.out.print("Is this movie is a sequel?(enter 'yes' or 'no') ");
                                     String sequel = null;
                                     Integer sequelTo = null;
                                     input = new Scanner (System.in);
-                                    switch (input.next()){
+                                    switch (input.nextLine()){
                                         case "yes":{
                                             System.out.print("Enter the ID of the prequel to this movie: ");
-                                            sequel = input.next();
+                                            sequel = input.nextLine();
                                             sequelTo = Integer.valueOf(sequel);
                                             break;
                                         }
@@ -111,8 +109,20 @@ public class UNFMovieStore {
                                        }  
                                     }
                                     //int sequelTo = Integer.valueOf(sequel);
-                                    System.out.print("Production Company: ");
-                                    String prodCo = input.nextLine();
+                                    System.out.print("Does this movie have a production company?(enter 'yes' or 'no') ");
+                                    input = new Scanner (System.in);
+                                    String prodCo = null;
+                                    switch (input.nextLine()){
+                                        case "yes":{
+                                            System.out.print("Production Company: ");
+                                            prodCo = input.nextLine();
+                                            break;
+                                        }
+                                        case "no":{
+                                            break;
+                                        }
+                                    }
+                                    
                                     a.addMovieToDatabase(title, genre, descr, release, digital, oldRate, newRate, oldPeriod, newPeriod, lateFeeRate, price, ageRate, directorLast, directorFirst, sequelTo, prodCo);
                                     i = 0;
                                     break;
@@ -127,7 +137,7 @@ public class UNFMovieStore {
                                 case "manage inventory":{
                                     System.out.print("Would you like to increase or decrease the inventory for a movie?(enter 'increase' or 'decrease') ");
                                     input = new Scanner (System.in);
-                                    switch (input.next()){
+                                    switch (input.nextLine()){
                                         case "increase":{
                                             System.out.print("What is the title of the movie you want to increase the inventory for? ");
                                             input = new Scanner (System.in);
@@ -223,11 +233,11 @@ public class UNFMovieStore {
             case "customer":
                 {
                     System.out.print("Enter your last name: ");
-                    String lname = input.next();
+                    String lname = input.nextLine();
                     System.out.print("Enter your first name: ");
-                    String fname = input.next();
+                    String fname = input.nextLine();
                     System.out.print("Enter your password: ");
-                    String password = input.next();
+                    String password = input.nextLine();
                     customer c;
                     c = new customer(lname, fname, password);
                     
@@ -252,7 +262,7 @@ public class UNFMovieStore {
                                 System.out.print("Would you like to 'rent' or 'buy': ");
                                 int type = -1;
                                 input = new Scanner (System.in);
-                                switch (input.next()){
+                                switch (input.nextLine()){
                                     case "rent":{
                                         type = 1;
                                         break;
@@ -270,7 +280,7 @@ public class UNFMovieStore {
                             
                                 System.out.print("Are you ready to check out? (enter 'yes' or 'no') ");
                                 input = new Scanner (System.in);
-                                switch (input.next()){
+                                switch (input.nextLine()){
                                     case "yes":{
                                         x = 1;
                                         c.checkout();
@@ -299,7 +309,7 @@ public class UNFMovieStore {
                         //call payBalance
                         System.out.print("Would you like to check or pay your balance? (enter 'check' or 'pay') ");
                         input = new Scanner (System.in);
-                        switch (input.next()){
+                        switch (input.nextLine()){
                                 case "check":{
                                     c.checkBalance();
                                     break;
