@@ -9,7 +9,7 @@ public class customer {
     private Connection c;
     private ArrayList<ArrayList<Integer>> cart;
     
-    customer(String lastName, String firstName, String password) {
+    public customer(String lastName, String firstName, String password) {
         //You will need to put the details of the MySQL database that you are using.
         try {
             //First argument is the database url, second is the account, third is the password.
@@ -339,6 +339,24 @@ public class customer {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+    }
+    
+    public int getMovieIDFromTitle(String title) {
+        int MovieID = 0;
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT * "
+                         + "FROM MOVIE "
+                         + "WHERE Title = '" + title + "'";
+            ResultSet rs = s.executeQuery(query);
+            if(rs.next())
+               MovieID = rs.getInt("MovieID");
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return MovieID;
     }
     
     //Movies can only be added to cart one time. 
