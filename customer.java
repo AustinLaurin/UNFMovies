@@ -9,7 +9,7 @@ public class customer {
     private Connection c;
     private ArrayList<ArrayList<Integer>> cart;
     
-    public customer(String lastName, String firstName, String password) {
+    customer(String lastName, String firstName, String password) {
         //You will need to put the details of the MySQL database that you are using.
         try {
             //First argument is the database url, second is the account, third is the password.
@@ -18,8 +18,8 @@ public class customer {
             String query = "SELECT UserID "
                          + "FROM User "
                          + "WHERE lastName = '" + lastName + "' "
-                         + "AND firstName='" + firstName 
-                         + "' AND encryptedpassword='" + password + "'";
+                         + "AND firstName = '" + firstName + "' "
+                         + "AND encryptedpassword = '" + password + "'";
             ResultSet rs = s.executeQuery(query);
             if(rs.next()) 
                 UserID = rs.getInt("UserID");
@@ -70,7 +70,7 @@ public class customer {
             Double LateFees;
             while(rs.next()) {
                 CurrentBill = Double.parseDouble(rs.getString("CurrentBill"));
-                LateFees = Double.parseDouble(rs.getString("CurrentBill"));
+                LateFees = Double.parseDouble(rs.getString("LateFees"));
                 CurrentBill += calculateRentDue();
                 LateFees += calculateLateFees();
                 
@@ -85,7 +85,7 @@ public class customer {
                 
             //Now, to show all rentals as returned, set rental return dates, and reset customer balance.
             s = c.createStatement();
-            query = "UPDATE USER "
+            query = "UPDATE USER "  
                   + "SET CurrentBill = 0.00, LateFees = 0.00 "
                   + "WHERE UserID = " + UserID;
             s.executeUpdate(query);
@@ -102,6 +102,15 @@ public class customer {
             rs = s.executeQuery(query);
             
             while(rs.next()) {
+                //If this works properly, we are calculating the rente due and the late fees due for specific rental transactions and setting
+                //the total payment to the sum of all those fees. If we don't, it won't show in reports.
+                s = c.createStatement();
+                query = "UPDATE TRANSACTION "
+                      + "SET TotalPayment = " + (calculateRentDue(rs.getInt("R.TransactionID"), rs.getInt("R.ItemNumber")) + calculateLateFees(rs.getInt("R.TransactionID"), rs.getInt("R.ItemNumber"))) + " "
+                      + "WHERE TransactionID = " + rs.getInt("R.TransactionID") + " "
+                      + "AND ItemNumber = " + rs.getInt("R.ItemNumber");
+                s.executeUpdate(query);
+                
                 s = c.createStatement();
                 if(((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate")))) < 15) { 
                     query = "UPDATE RENTAL "
@@ -169,6 +178,7 @@ public class customer {
     
     //Transaction type is 0 for purchase and 1 for rental.
     public void addMovieToCart(int MovieID, int transactionType) {
+        
         if(checkAvailability(MovieID) && !checkDuplicateMovie(MovieID) && checkMoviesRented() <= 2 && !(checkMoviesRented() == 2 && transactionType == 1) && checkBalanceAndLateFees()) {
             if(cart == null)
                 cart = new ArrayList();
@@ -404,7 +414,7 @@ public class customer {
                          + "WHERE MovieID = " + MovieID;
             ResultSet rs = s.executeQuery(query);
             rs.next();
-            if(rs.getInt("NumberOfCopies") > 0)
+            if(rs.getInt("NumberOfCopies") > 0 || isDigital(MovieID))
                 available = true;
         }
         catch(Exception e) {
@@ -587,6 +597,67 @@ public class customer {
                                     + "ON MOVIE_TRANSACTION.MovieID = M.MovieID "
                          + "WHERE T.UserID = " + UserID + " "
                          + "AND R.IsPaid = 0 ";
+            ResultSet rs = s.executeQuery(query);
+            while(rs.next()) {
+                int iterations = Math.min((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate"))),15) + 1;
+                if(iterations < 15) {
+                    for(int i = rs.getInt("M.MaximumRentalPeriodDays"); i < iterations; i++) {
+                        LateFees += rs.getDouble("M.LateFeeRate");
+                    }
+                }
+                else
+                    LateFees = rs.getDouble("M.PurchasePrice");
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return LateFees;
+    }
+    
+    private Double calculateRentDue(int TransactionID, int ItemNumber) {
+        Double RentDue = 0.00;
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT * "
+                         + "FROM TRANSACTION AS T JOIN RENTAL AS R "
+                            + "ON T.TransactionID = R.TransactionID JOIN MOVIE_TRANSACTION "
+                                + "ON T.TransactionID = MOVIE_TRANSACTION.TransactionID JOIN MOVIE AS M "
+                                    + "ON MOVIE_TRANSACTION.MovieID = M.MovieID "
+                         + "WHERE T.UserID = " + UserID + " "
+                         + "AND IsPaid = 0 "
+                         + "AND R.TransactionID = " + TransactionID + " "
+                         + "AND R.ItemNumber = " + ItemNumber;
+            ResultSet rs = s.executeQuery(query);
+            while(rs.next()) {
+                int iterations = Math.min((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate"))),rs.getInt("M.MaximumRentalPeriodDays")) + 1;
+                
+                for(int i = 0; i < iterations; i++) {
+                    RentDue += rs.getDouble("M.RentalPrice");
+                }
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return RentDue;
+    }
+    
+    private Double calculateLateFees(int TransactionID, int ItemNumber) {
+        Double LateFees = 0.00;
+        try {
+            Statement s = c.createStatement();
+            String query = "SELECT * "
+                         + "FROM TRANSACTION AS T JOIN RENTAL AS R "
+                            + "ON T.TransactionID = R.TransactionID JOIN MOVIE_TRANSACTION "
+                                + "ON T.TransactionID = MOVIE_TRANSACTION.TransactionID JOIN MOVIE AS M "
+                                    + "ON MOVIE_TRANSACTION.MovieID = M.MovieID "
+                         + "WHERE T.UserID = " + UserID + " "
+                         + "AND R.IsPaid = 0 "
+                         + "AND R.TransactionID = " + TransactionID + " "
+                         + "AND R.ItemNumber = " + ItemNumber;
             ResultSet rs = s.executeQuery(query);
             while(rs.next()) {
                 int iterations = Math.min((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate"))),15) + 1;
