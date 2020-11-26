@@ -337,4 +337,5 @@ public class UNFMovieStore {
                 System.out.println("Please try again and enter either 'employee' or 'customer'");
                 break;
         }
-
+    }
+}
