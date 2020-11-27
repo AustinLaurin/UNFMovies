@@ -1,7 +1,7 @@
-package unfmoviestore;
+package unfmovies;
 import java.util.Scanner;
 
-public class UNFMovieStore {
+public class UNFMovies {
     public static void main(String[] args) {
         // TODO code application logic here
         Scanner input = new Scanner (System.in);
