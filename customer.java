@@ -316,7 +316,7 @@ public class customer {
                          + "AND MovieID = " + MovieID;
             ResultSet rs = s.executeQuery(query);
             if(rs.next()) {
-                if(((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate")))) <= 30 && !rs.getBoolean("HasWatched") && !rs.getBoolean("HasDownloaded")) {
+                if(checkBalanceAndLateFees() && ((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate")))) <= 30 && !rs.getBoolean("HasWatched") && !rs.getBoolean("HasDownloaded")) {
                     int TransactionID = rs.getInt("T.TransactionID");
                     s = c.createStatement();
                     query = "DELETE " + 
