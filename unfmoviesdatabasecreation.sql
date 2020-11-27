@@ -106,7 +106,7 @@ CREATE TABLE SKU_NUMBER(
     	CONSTRAINT SKU_NUMBER_PK PRIMARY KEY(SKU),
     	CONSTRAINT SKU_NUMBER_MOVIE_FK FOREIGN KEY(MovieID)
 		REFERENCES MOVIE(MovieID)
-           		ON DELETE CASCADE
+            ON DELETE CASCADE
 );
 
 CREATE TABLE REVIEW( 
@@ -250,14 +250,11 @@ CREATE VIEW REVENUE_REPORT_TITLE_AND_GENRE AS(
 CREATE VIEW REVENUE_REPORT_PERIODIC AS(
 	SELECT WEEK(T.TransactionDate) AS "Week", MONTH(T.TransactionDate) AS "Month", YEAR(T.TransactionDate) AS "Year", SUM(T.TotalPayment) AS "TotalPayment", T.TransactionType AS "TransactionType"
     	FROM TRANSACTION AS T
-    	GROUP BY WEEK(T.TransactionDate), MONTH(T.TransactionDate), YEAR(T.TransactionDate)
+    	GROUP BY WEEK(T.TransactionDate), MONTH(T.TransactionDate), YEAR(T.TransactionDate), T.TransactionType
 );
 
 CREATE VIEW USER_BALANCE_VIEW AS(
 	SELECT UserID, LastName, FirstName, CurrentBill, LateFees
     	FROM USER
 );
-
-
-
 
