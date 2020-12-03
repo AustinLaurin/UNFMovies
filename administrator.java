@@ -61,20 +61,21 @@ public class administrator {
                     rentalPeriod = newReleaseRentalPeriod;
                 }
                 
+                Integer ProductionID = null;
                 if(productionCompany != null) {
-                    Integer ProductionID = null;
-                    query = "SELECT ProductionID"
-                          + "FROM PRODUCTION_COMPANY"
+                	s = c.createStatement();
+                    query = "SELECT ProductionCompanyID "
+                          + "FROM PRODUCTION_COMPANY "
                           + "WHERE Headquarters = '" + productionCompany + "'";
                     s.executeQuery(query);
                     if(rs.next())
                         ProductionID = rs.getInt("ProductionID");
                 }
                 
-                if(productionCompany == null)
-                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + rentalPeriod + "," + lateFeeRate + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + productionCompany + ")";
+                if(ProductionID == null)
+                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + rentalPeriod + "," + lateFeeRate + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + ProductionID + ")";
                 else
-                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + rentalPeriod + "," + lateFeeRate + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + ",'" + productionCompany + "')";
+                    query = "INSERT INTO MOVIE VALUES(NULL,'" + title + "','" + getGenreIDFromGenre(genre) + "','" + description + "',NULL,'" + releaseDate + "'," + isDigital + ",0," + rentalPrice + "," + rentalPeriod + "," + lateFeeRate + "," + purchasePrice + ",'" + ageRating + "'," + directorID + "," + sequelTo + "," + ProductionID + ")";
                 
                 s.executeUpdate(query);
             }
