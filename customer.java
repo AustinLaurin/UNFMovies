@@ -102,7 +102,7 @@ public class customer {
             rs = s.executeQuery(query);
             
             while(rs.next()) {
-                //If this works properly, we are calculating the rente due and the late fees due for specific rental transactions and setting
+                //If this works properly, we are calculating the rent due and the late fees due for specific rental transactions and setting
                 //the total payment to the sum of all those fees. If we don't, it won't show in reports.
                 s = c.createStatement();
                 query = "UPDATE TRANSACTION "
@@ -572,7 +572,7 @@ public class customer {
                          + "AND IsPaid = 0";
             ResultSet rs = s.executeQuery(query);
             while(rs.next()) {
-                int iterations = Math.min((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate"))),rs.getInt("M.MaximumRentalPeriodDays")) + 1;
+                int iterations = Math.min((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate"))),rs.getInt("M.MaximumRentalPeriodDays") - 1) + 1;
                 
                 for(int i = 0; i < iterations; i++) {
                     RentDue += rs.getDouble("M.RentalPrice");
@@ -631,7 +631,7 @@ public class customer {
                          + "AND R.ItemNumber = " + ItemNumber;
             ResultSet rs = s.executeQuery(query);
             while(rs.next()) {
-                int iterations = Math.min((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate"))),rs.getInt("M.MaximumRentalPeriodDays")) + 1;
+                int iterations = Math.min((int) Math.ceil(daysBetween(rs.getString("T.TransactionDate"))),rs.getInt("M.MaximumRentalPeriodDays") - 1) + 1;
                 
                 for(int i = 0; i < iterations; i++) {
                     RentDue += rs.getDouble("M.RentalPrice");
